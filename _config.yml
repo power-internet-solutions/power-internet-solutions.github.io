@@ -1,0 +1,16 @@
+title: "Customer Pages"
+description: "Digital customer pages"
+baseurl: ""
+url: ""
+
+collections:
+  customers:
+    output: true
+    permalink: /:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: "customers"
+    values:
+      layout: "customer"

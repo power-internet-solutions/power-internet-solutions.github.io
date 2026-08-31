@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ page.description }}">
+  <title>{{ page.name }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    {% if page.photo %}
+      <img src="{{ page.photo | relative_url }}" alt="{{ page.name }}" class="profile-photo">
+    {% endif %}
+
+    <h1>{{ page.name }}</h1>
+
+    {% if page.title %}
+      <div class="profession">{{ page.title }}</div>
+    {% endif %}
+
+    {% if page.company %}
+      <div class="company">{{ page.company }}</div>
+    {% endif %}
+
+    {% if page.description %}
+      <p class="description">{{ page.description }}</p>
+    {% endif %}
+
+    <div class="buttons">
+      {% if page.phone %}
+        <a class="button" href="tel:{{ page.phone }}">📞 Κλήση</a>
+      {% endif %}
+      {% if page.email %}
+        <a class="button" href="mailto:{{ page.email }}">✉️ Email</a>
+      {% endif %}
+      {% if page.website %}
+        <a class="button" href="{{ page.website }}" target="_blank" rel="noopener">🌐 Ιστοσελίδα</a>
+      {% endif %}
+    </div>
+
+    <div class="socials">
+      {% if page.instagram %}
+        <a href="{{ page.instagram }}" target="_blank" rel="noopener">Instagram</a>
+      {% endif %}
+      {% if page.facebook %}
+        <a href="{{ page.facebook }}" target="_blank" rel="noopener">Facebook</a>
+      {% endif %}
+    </div>
+
+    <div class="contact-section">
+      <h2>Αποθήκευση επαφής</h2>
+      <p>Σκάναρε το QR code για να αποθηκεύσεις τα στοιχεία ή κατέβασε την επαφή ως vCard.</p>
+      <div id="qrcode"></div>
+      <button id="save-vcard" class="save-button" type="button">📇 Αποθήκευση επαφής</button>
+    </div>
+  </section>
+</main>
+
+<script src="{{ '/assets/js/qrcode.min.js' | relative_url }}"></script>
+<script>
+(function () {
+  function esc(value) {
+    return String(value || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/\r?\n/g, "\\n");
+  }
+
+  const vcard = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N:" + esc("{{ page.lastname }}") + ";" + esc("{{ page.firstname }}") + ";;;",
+    "FN:" + esc("{{ page.name }}"),
+    {% if page.company %}"ORG:" + esc("{{ page.company }}"),{% endif %}
+    {% if page.title %}"TITLE:" + esc("{{ page.title }}"),{% endif %}
+    {% if page.phone %}"TEL;TYPE=CELL:" + esc("{{ page.phone }}"),{% endif %}
+    {% if page.email %}"EMAIL:" + esc("{{ page.email }}"),{% endif %}
+    {% if page.website %}"URL:" + esc("{{ page.website }}"),{% endif %}
+    {% if page.address %}"ADR;TYPE=WORK:;;" + esc("{{ page.address }}") + ";;;;",{% endif %}
+    "END:VCARD"
+  ].join("\r\n");
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: vcard,
+    width: 220,
+    height: 220,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  document.getElementById("save-vcard").addEventListener("click", function () {
+    const blob = new Blob([vcard], {type: "text/vcard;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "{{ page.firstname }}-{{ page.lastname }}.vcf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+})();
+</script>
+</body>
+</html>

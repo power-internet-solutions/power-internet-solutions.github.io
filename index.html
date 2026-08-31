@@ -1,0 +1,25 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Pages</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    <h1>Customer Pages</h1>
+    <p class="description">Ψηφιακές επαγγελματικές κάρτες.</p>
+    <div class="buttons">
+      {% for customer in site.customers %}
+        <a class="button" href="{{ customer.url | relative_url }}">{{ customer.name }}</a>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+</body>
+</html>
