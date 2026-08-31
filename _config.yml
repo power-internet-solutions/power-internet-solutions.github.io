@@ -1,7 +1,8 @@
 title: "Customer Pages"
 description: "Digital customer pages"
+
 baseurl: ""
-url: ""
+url: "https://power-internet-solutions.github.io"
 
 collections:
   customers:
