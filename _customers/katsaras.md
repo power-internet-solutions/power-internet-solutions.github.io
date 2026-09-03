@@ -1,6 +1,6 @@
 ---
-firstname: "Αλέξανδρος"
-lastname: "Κατσάρας"
+firstname: "Alexandros"
+lastname: "Katsaras"
 name: "Αλέξανδρος Κατσάρας"
 title: "Φυσικός - Ερευνητής"
 company: "PIS"
