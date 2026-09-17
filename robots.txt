@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://power-internet-solutions.github.io/sitemap.xml
