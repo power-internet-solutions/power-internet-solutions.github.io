@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <meta name="description"
+        content="Φόρμα ενδιαφέροντος συνεργατών">
+
+  <title>Φόρμα Ενδιαφέροντος</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 30px 15px;
+
+      font-family: Arial, sans-serif;
+
+      background:
+        linear-gradient(
+          135deg,
+          #111827,
+          #1f2937
+        );
+
+      color: #ffffff;
+    }
+
+    .form-card {
+
+      width: 100%;
+      max-width: 500px;
+
+      padding: 40px 35px;
+
+      background: rgba(255,255,255,0.08);
+
+      border: 1px solid rgba(255,255,255,0.18);
+
+      border-radius: 20px;
+
+      backdrop-filter: blur(12px);
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    h1 {
+
+      margin-top: 0;
+      margin-bottom: 10px;
+
+      text-align: center;
+
+      font-size: 30px;
+    }
+
+    .subtitle {
+
+      margin-bottom: 30px;
+
+      text-align: center;
+
+      color: rgba(255,255,255,0.75);
+
+      line-height: 1.5;
+    }
+
+    label {
+
+      display: block;
+
+      margin-bottom: 8px;
+
+      font-size: 15px;
+
+      font-weight: bold;
+    }
+
+    input {
+
+      width: 100%;
+
+      padding: 14px 15px;
+
+      margin-bottom: 20px;
+
+      border: 1px solid rgba(255,255,255,0.2);
+
+      border-radius: 10px;
+
+      background: rgba(255,255,255,0.95);
+
+      color: #111827;
+
+      font-size: 16px;
+
+      outline: none;
+    }
+
+    input:focus {
+
+      border-color: #ffffff;
+
+      box-shadow:
+        0 0 0 3px rgba(255,255,255,0.15);
+    }
+
+    button {
+
+      width: 100%;
+
+      padding: 15px;
+
+      margin-top: 5px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      background: #ffffff;
+
+      color: #111827;
+
+      font-size: 17px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      transition: 0.2s;
+    }
+
+    button:hover {
+
+      transform: translateY(-1px);
+
+      box-shadow:
+        0 8px 20px rgba(0,0,0,0.25);
+    }
+
+    .privacy {
+
+      margin-top: 20px;
+
+      text-align: center;
+
+      font-size: 12px;
+
+      color: rgba(255,255,255,0.55);
+
+      line-height: 1.5;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <main class="form-card">
+
+
+    <h1>
+      Φόρμα Ενδιαφέροντος
+    </h1>
+
+
+    <p class="subtitle">
+      Συμπληρώστε τα στοιχεία σας
+      και θα επικοινωνήσουμε μαζί σας.
+    </p>
+
+
+    <form
+      action="https://formspree.io/f/xeaeollb"
+      method="POST">
+
+
+      <label for="name">
+        ΟΝΟΜΑΤΕΠΩΝΥΜΟ
+      </label>
+
+      <input
+        type="text"
+        id="name"
+        name="Ονοματεπώνυμο"
+        placeholder="Ονοματεπώνυμο"
+        required>
+
+
+      <label for="phone">
+        ΤΗΛΕΦΩΝΟ
+      </label>
+
+      <input
+        type="tel"
+        id="phone"
+        name="Τηλέφωνο"
+        placeholder="Τηλέφωνο"
+        required>
+
+
+      <label for="email">
+        EMAIL
+      </label>
+
+      <input
+        type="email"
+        id="email"
+        name="Email"
+        placeholder="email@example.com"
+        required>
+
+
+      <button type="submit">
+        ΑΠΟΣΤΟΛΗ
+      </button>
+
+
+    </form>
+
+
+    <div class="privacy">
+
+      Τα στοιχεία σας χρησιμοποιούνται
+      αποκλειστικά για την επικοινωνία
+      σχετικά με τη συνεργασία.
+
+    </div>
+
+
+  </main>
+
+
+</body>
+
+</html>
