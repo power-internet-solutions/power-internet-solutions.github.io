@@ -11,7 +11,7 @@ website: "https://example.com"
 address: "Καρδίτσα, Ελλάδα"
 instagram: ""
 facebook: ""
-photo: "/assets/images/giannis.jpg"
+photo: "/assets/images/Παπαδόπουλος Γιάννης.jpg"
 background: "/assets/images/giannis_shop.jpg"
 permalink: /giannis/
 ---
