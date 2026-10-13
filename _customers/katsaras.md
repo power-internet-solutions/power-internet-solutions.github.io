@@ -11,6 +11,6 @@ website: "https://example.com"
 address: "Θεσσαλονίκη, Ελλάδα"
 instagram: ""
 facebook: ""
-photo: "/assets/images/alekos.svg"
+photo: "/assets/images/Κατσάρας Αλέξανδρος.jpg"
 permalink: /katsaras/
 ---
