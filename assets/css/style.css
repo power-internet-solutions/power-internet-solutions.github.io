@@ -14,3 +14,12 @@
   .owner-photo img{display:block;width:100%;height:auto!important;min-height:0!important;max-height:none!important;object-fit:contain;object-position:center}
   .owner-photo span{min-height:0!important;max-height:none!important}
 }
+
+
+/* Desktop hero update: show the full header photo, with text overlaid on top. Mobile layout below remains unchanged. */
+@media(min-width:761px){
+  .hero-image{display:block;min-height:0;height:auto;background-image:none!important;overflow:hidden}
+  .hero-photo{position:relative;inset:auto;display:block;width:100%;height:auto;max-height:none;object-fit:contain;object-position:center}
+  .hero-image .shade{position:absolute;inset:0}
+  .hero-copy{position:absolute;left:0;right:0;bottom:0;max-width:100%;z-index:1}
+}
