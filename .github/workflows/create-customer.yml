@@ -1,25 +1,37 @@
-name: Δημιουργία ιστοσελίδας πελάτη
+name: Διαχείριση ιστοσελίδων πελατών
+
 on:
   workflow_dispatch:
     inputs:
-      slug: {description: "Μοναδικό URL, π.χ. bakery-karditsa", required: true, type: string}
-      company: {description: "Όνομα καταστήματος", required: true, type: string}
-      owner: {description: "Ονοματεπώνυμο ιδιοκτήτη", required: true, type: string}
-      firstname: {description: "Όνομα ιδιοκτήτη", required: true, type: string}
-      lastname: {description: "Επώνυμο ιδιοκτήτη", required: true, type: string}
+      mode:
+        description: "Επίλεξε αν θα δημιουργήσεις νέο πελάτη ή θα διορθώσεις υπάρχοντα"
+        required: true
+        type: choice
+        options:
+          - create
+          - edit
+        default: create
+      slug:
+        description: "URL πελάτη χωρίς /, π.χ. bakery-karditsa (στην επεξεργασία χρησιμοποίησε το υπάρχον URL)"
+        required: true
+        type: string
+      company: {description: "Όνομα καταστήματος", required: false, type: string}
+      owner: {description: "Ονοματεπώνυμο ιδιοκτήτη", required: false, type: string}
+      firstname: {description: "Όνομα ιδιοκτήτη", required: false, type: string}
+      lastname: {description: "Επώνυμο ιδιοκτήτη", required: false, type: string}
       owner_title: {description: "Ιδιότητα", required: false, type: string}
       phone: {description: "Τηλέφωνο με κωδικό χώρας", required: false, type: string}
       email: {description: "Email", required: false, type: string}
       website: {description: "Ιστοσελίδα με https://", required: false, type: string}
       address: {description: "Διεύθυνση", required: false, type: string}
       hours: {description: "Ωράριο", required: false, type: string}
-      description: {description: "Περιγραφή επιχείρησης", required: true, type: string}
+      description: {description: "Περιγραφή επιχείρησης", required: false, type: string}
       tagline: {description: "Σύντομο μήνυμα στην κορυφή", required: false, type: string}
       owner_bio: {description: "Κείμενο για τον ιδιοκτήτη", required: false, type: string}
-      background: {description: "Διαδρομή εικόνας φόντου", required: false, type: string}
+      background: {description: "Διαδρομή εικόνας φόντου, π.χ. /assets/images/shop.jpg", required: false, type: string}
       photo: {description: "Διαδρομή φωτογραφίας ιδιοκτήτη", required: false, type: string}
-      gallery1: {description: "Διαδρομή πρώτης φωτογραφίας gallery", required: false, type: string}
-      gallery2: {description: "Διαδρομή δεύτερης φωτογραφίας gallery", required: false, type: string}
+      gallery1: {description: "Gallery: πρώτη φωτογραφία (αν αλλάξεις gallery, συμπλήρωσε όλες τις φωτογραφίες που θέλεις να κρατήσεις)", required: false, type: string}
+      gallery2: {description: "Gallery: δεύτερη φωτογραφία", required: false, type: string}
       instagram: {description: "URL Instagram", required: false, type: string}
       facebook: {description: "URL Facebook", required: false, type: string}
       tiktok: {description: "URL TikTok", required: false, type: string}
@@ -29,12 +41,15 @@ permissions:
   contents: write
 
 jobs:
-  create-customer:
+  manage-customer:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Δημιουργία αρχείου πελάτη
+      - name: Λήψη repository
+        uses: actions/checkout@v4
+
+      - name: Δημιουργία ή ενημέρωση αρχείου πελάτη
         env:
+          MODE: ${{ inputs.mode }}
           SLUG: ${{ inputs.slug }}
           COMPANY: ${{ inputs.company }}
           OWNER: ${{ inputs.owner }}
@@ -61,40 +76,155 @@ jobs:
           python3 <<'PY'
           import json, os, re
           from pathlib import Path
-          slug = os.environ["SLUG"].strip().lower()
+
+          mode = os.environ.get("MODE", "create").strip()
+          slug = os.environ.get("SLUG", "").strip().lower()
+          if mode not in ("create", "edit"):
+              raise SystemExit("Μη έγκυρη επιλογή. Επίλεξε create ή edit.")
           if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
-              raise SystemExit("Το URL πρέπει να περιέχει μόνο λατινικά μικρά γράμματα, αριθμούς και παύλες.")
+              raise SystemExit("Το URL πρέπει να περιέχει μόνο λατινικά μικρά γράμματα, αριθμούς και παύλες, π.χ. bakery-karditsa.")
+
           target = Path("_customers") / (slug + ".md")
-          if target.exists():
-              raise SystemExit("Υπάρχει ήδη πελάτης με αυτό το URL. Διάλεξε άλλο slug.")
-          def v(k): return os.environ.get(k, "").strip()
-          def q(s): return json.dumps(s, ensure_ascii=False)
+          if mode == "create" and target.exists():
+              raise SystemExit("Υπάρχει ήδη πελάτης με αυτό το URL. Επίλεξε 'edit' για αλλαγές ή άλλο slug για νέο πελάτη.")
+          if mode == "edit" and not target.exists():
+              raise SystemExit(f"Δεν βρέθηκε το αρχείο {target}. Έλεγξε το slug και ότι ο πελάτης υπάρχει ήδη.")
+
+          def val(key):
+              return os.environ.get(key, "").strip()
+          def quote(value):
+              return json.dumps(value, ensure_ascii=False)
+
+          # Οι κενές τιμές στην επεξεργασία διατηρούν τα ήδη αποθηκευμένα δεδομένα.
+          # Για να διαγραφεί μια τιμή, γράψε ακριβώς __CLEAR__ στο αντίστοιχο πεδίο.
           fields = [
-            ("firstname","FIRSTNAME"),("lastname","LASTNAME"),("name","OWNER"),("owner","OWNER"),
-            ("owner_title","OWNER_TITLE"),("company","COMPANY"),("tagline","TAGLINE"),
-            ("description","DESCRIPTION"),("owner_bio","OWNER_BIO"),("phone","PHONE"),
-            ("email","EMAIL"),("website","WEBSITE"),("address","ADDRESS"),("hours","HOURS"),
-            ("photo","PHOTO"),("background","BACKGROUND"),("instagram","INSTAGRAM"),
-            ("facebook","FACEBOOK"),("tiktok","TIKTOK"),("linkedin","LINKEDIN")]
-          lines = ["---", "layout: customer"]
+              ("firstname", "FIRSTNAME"), ("lastname", "LASTNAME"),
+              ("name", "OWNER"), ("owner", "OWNER"),
+              ("owner_title", "OWNER_TITLE"), ("company", "COMPANY"),
+              ("tagline", "TAGLINE"), ("description", "DESCRIPTION"),
+              ("owner_bio", "OWNER_BIO"), ("phone", "PHONE"),
+              ("email", "EMAIL"), ("website", "WEBSITE"),
+              ("address", "ADDRESS"), ("hours", "HOURS"),
+              ("photo", "PHOTO"), ("background", "BACKGROUND"),
+              ("instagram", "INSTAGRAM"), ("facebook", "FACEBOOK"),
+              ("tiktok", "TIKTOK"), ("linkedin", "LINKEDIN"),
+          ]
+
+          if mode == "create":
+              required = {"COMPANY": "Όνομα καταστήματος", "OWNER": "Ονοματεπώνυμο ιδιοκτήτη",
+                          "FIRSTNAME": "Όνομα ιδιοκτήτη", "LASTNAME": "Επώνυμο ιδιοκτήτη",
+                          "DESCRIPTION": "Περιγραφή επιχείρησης"}
+              missing = [label for key, label in required.items() if not val(key)]
+              if missing:
+                  raise SystemExit("Για νέο πελάτη συμπλήρωσε τα υποχρεωτικά πεδία: " + ", ".join(missing))
+              lines = ["layout: customer"]
+          else:
+              original = target.read_text(encoding="utf-8").splitlines()
+              if not original or original[0].strip() != "---":
+                  raise SystemExit("Το αρχείο πελάτη δεν έχει αναγνωρίσιμη ενότητα front matter.")
+              try:
+                  end = next(i for i in range(1, len(original)) if original[i].strip() == "---")
+              except StopIteration:
+                  raise SystemExit("Δεν βρέθηκε η γραμμή --- που κλείνει τα πεδία του πελάτη.")
+              lines = original[1:end]
+
+          # Ενημέρωση απλών πεδίων YAML, χωρίς να πειράζονται τα υπόλοιπα στοιχεία.
+          updates = {}
+          clears = set()
           for key, envkey in fields:
-            if v(envkey): lines.append(f"{key}: {q(v(envkey))}")
-          gallery = [v("GALLERY1"), v("GALLERY2")]
-          gallery = [x for x in gallery if x]
-          if gallery:
-            lines.append("gallery:")
-            for i, src in enumerate(gallery, 1):
-              lines += [f"  - src: {q(src)}", f"    alt: {q(v('COMPANY') + ' - φωτογραφία ' + str(i))}"]
-          lines += [f"permalink: /{slug}/", "---", ""]
-          target.parent.mkdir(parents=True, exist_ok=True)
-          target.write_text("\n".join(lines), encoding="utf-8")
-          print(f"Δημιουργήθηκε το {target}")
+              value = val(envkey)
+              if value == "__CLEAR__":
+                  clears.add(key)
+              elif value:
+                  updates[key] = value
+              elif mode == "create":
+                  continue
+
+          existing_keys = set()
+          new_lines = []
+          for line in lines:
+              match = re.match(r"^([A-Za-z0-9_-]+):(?:\s.*)?$", line)
+              if match:
+                  key = match.group(1)
+                  if key == "gallery":
+                      # Η gallery επεξεργάζεται ως ξεχωριστό block παρακάτω.
+                      new_lines.append(line)
+                      continue
+                  if key in clears:
+                      existing_keys.add(key)
+                      continue
+                  if key in updates:
+                      new_lines.append(f"{key}: {quote(updates[key])}")
+                      existing_keys.add(key)
+                      continue
+                  existing_keys.add(key)
+              new_lines.append(line)
+          lines = new_lines
+
+          # Πρόσθεσε νέα πεδία πριν από gallery/permalink, για να μείνει καθαρό το front matter.
+          missing_lines = []
+          for key, value in updates.items():
+              if key not in existing_keys:
+                  missing_lines.append(f"{key}: {quote(value)}")
+          if missing_lines:
+              insert_at = len(lines)
+              for i, line in enumerate(lines):
+                  if re.match(r"^(gallery|permalink):", line):
+                      insert_at = i
+                      break
+              lines[insert_at:insert_at] = missing_lines
+
+          # Gallery: σε edit, κενά πεδία = διατήρηση της υπάρχουσας gallery.
+          # Αν συμπληρωθεί gallery1/gallery2, αντικαθίσταται με τις φωτογραφίες που δόθηκαν.
+          g1, g2 = val("GALLERY1"), val("GALLERY2")
+          gallery_requested = mode == "create" or bool(g1 or g2 or g1 == "__CLEAR__" or g2 == "__CLEAR__")
+          if gallery_requested:
+              start = next((i for i, line in enumerate(lines) if re.match(r"^gallery:\s*$", line)), None)
+              if start is not None:
+                  end = start + 1
+                  while end < len(lines) and (lines[end].startswith(" ") or lines[end].startswith("\t") or not lines[end].strip()):
+                      end += 1
+                  del lines[start:end]
+              images = [x for x in (g1, g2) if x and x != "__CLEAR__"]
+              if images:
+                  block = ["gallery:"]
+                  for i, src in enumerate(images, 1):
+                      block.extend([f"  - src: {quote(src)}", f"    alt: {quote(slug + ' - φωτογραφία ' + str(i))}"])
+                  insert_at = next((i for i, line in enumerate(lines) if line.startswith("permalink:")), len(lines))
+                  lines[insert_at:insert_at] = block
+
+          # Διατήρησε permalink του πελάτη και το υπόλοιπο περιεχόμενο μετά το front matter.
+          if mode == "create":
+              if not any(line.startswith("permalink:") for line in lines):
+                  lines.append(f"permalink: /{slug}/")
+              output = ["---"] + lines + ["---", ""]
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_text("\n".join(output), encoding="utf-8")
+          else:
+              original = target.read_text(encoding="utf-8").splitlines()
+              end = next(i for i in range(1, len(original)) if original[i].strip() == "---")
+              body = original[end + 1:]
+              output = ["---"] + lines + ["---"] + body
+              target.write_text("\n".join(output).rstrip("\n") + "\n", encoding="utf-8")
+
+          print(("Δημιουργήθηκε" if mode == "create" else "Ενημερώθηκε") + f" το {target}")
           PY
+
       - name: Commit και δημοσίευση
+        env:
+          MODE: ${{ inputs.mode }}
+          SLUG: ${{ inputs.slug }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add _customers/
-          git diff --cached --quiet && { echo "Δεν δημιουργήθηκαν αλλαγές."; exit 1; }
-          git commit -m "Add customer page: ${{ inputs.slug }}"
+          git add -- "_customers/${SLUG}.md"
+          if git diff --cached --quiet; then
+            echo "Δεν υπάρχουν αλλαγές για αποθήκευση."
+            exit 0
+          fi
+          if [ "$MODE" = "create" ]; then
+            git commit -m "Add customer page: $SLUG"
+          else
+            git commit -m "Update customer page: $SLUG"
+          fi
           git push
