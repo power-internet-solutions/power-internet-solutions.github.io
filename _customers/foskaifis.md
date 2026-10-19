@@ -1,9 +1,9 @@
 ---
 layout: customer
 firstname: "ξηδγξδγυφξξ"
-lastname: "υξδξγξγξν"
-name: "χγηηη"
-owner: "χγηηη"
+lastname: "ΦΙΛΙΠΠΙΔΟΥ"
+name: "ΕΛΙΣΣΑΒΕΤ"
+owner: "ΦΙΛΙΠΠΙΔΟΥ ΕΛΙΣΣΑΒΕΤ"
 owner_title: "Φωτιστικά είδη Ηλεκτρολογικό υλικό"
 company: "FOS&FIS"
 tagline: "Έχουμε ότι ζητάτε"
