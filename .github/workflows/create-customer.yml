@@ -20,7 +20,8 @@ on:
       firstname: {description: "Όνομα ιδιοκτήτη", required: false, type: string}
       lastname: {description: "Επώνυμο ιδιοκτήτη", required: false, type: string}
       owner_title: {description: "Ιδιότητα", required: false, type: string}
-      phone: {description: "Τηλέφωνο με κωδικό χώρας", required: false, type: string}
+      landline: {description: "Σταθερό τηλέφωνο (με κωδικό χώρας)", required: false, type: string}
+      phone: {description: "Κινητό τηλέφωνο (με κωδικό χώρας)", required: false, type: string}
       email: {description: "Email", required: false, type: string}
       website: {description: "Ιστοσελίδα με https://", required: false, type: string}
       address: {description: "Διεύθυνση", required: false, type: string}
@@ -56,6 +57,7 @@ jobs:
           FIRSTNAME: ${{ inputs.firstname }}
           LASTNAME: ${{ inputs.lastname }}
           OWNER_TITLE: ${{ inputs.owner_title }}
+          LANDLINE: ${{ inputs.landline }}
           PHONE: ${{ inputs.phone }}
           EMAIL: ${{ inputs.email }}
           WEBSITE: ${{ inputs.website }}
@@ -102,7 +104,7 @@ jobs:
               ("name", "OWNER"), ("owner", "OWNER"),
               ("owner_title", "OWNER_TITLE"), ("company", "COMPANY"),
               ("tagline", "TAGLINE"), ("description", "DESCRIPTION"),
-              ("owner_bio", "OWNER_BIO"), ("phone", "PHONE"),
+              ("owner_bio", "OWNER_BIO"), ("landline", "LANDLINE"), ("phone", "PHONE"),
               ("email", "EMAIL"), ("website", "WEBSITE"),
               ("address", "ADDRESS"), ("hours", "HOURS"),
               ("photo", "PHOTO"), ("background", "BACKGROUND"),
