@@ -1,6 +1,6 @@
 ---
 layout: customer
-firstname: "ξηδγξδγυφξξ"
+firstname: "ΕΛΙΣΣΑΒΕΤ"
 lastname: "ΦΙΛΙΠΠΙΔΟΥ"
 name: "ΕΛΙΣΣΑΒΕΤ"
 owner: "ΦΙΛΙΠΠΙΔΟΥ ΕΛΙΣΣΑΒΕΤ"
