@@ -23,3 +23,18 @@
   .hero-image .shade{position:absolute;inset:0}
   .hero-copy{position:absolute;left:0;right:0;bottom:0;max-width:100%;z-index:1}
 }
+
+
+/* Desktop hero: localized gradient behind the text; keep the rest of the photo clear. */
+@media (min-width: 761px) {
+  .hero-image .shade {
+    background: linear-gradient(
+      90deg,
+      rgba(14, 18, 15, 0.78) 0%,
+      rgba(14, 18, 15, 0.62) 22%,
+      rgba(14, 18, 15, 0.34) 40%,
+      rgba(14, 18, 15, 0.08) 56%,
+      transparent 68%
+    );
+  }
+}
