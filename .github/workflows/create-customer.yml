@@ -31,8 +31,12 @@ on:
       owner_bio: {description: "Κείμενο για τον ιδιοκτήτη", required: false, type: string}
       background: {description: "Διαδρομή εικόνας φόντου, π.χ. /assets/images/shop.jpg", required: false, type: string}
       photo: {description: "Διαδρομή φωτογραφίας ιδιοκτήτη", required: false, type: string}
-      gallery1: {description: "Gallery: πρώτη φωτογραφία (αν αλλάξεις gallery, συμπλήρωσε όλες τις φωτογραφίες που θέλεις να κρατήσεις)", required: false, type: string}
-      gallery2: {description: "Gallery: δεύτερη φωτογραφία", required: false, type: string}
+      gallery1: {description: "Gallery: φωτογραφία 1", required: false, type: string}
+      gallery2: {description: "Gallery: φωτογραφία 2", required: false, type: string}
+      gallery3: {description: "Gallery: φωτογραφία 3", required: false, type: string}
+      gallery4: {description: "Gallery: φωτογραφία 4", required: false, type: string}
+      gallery5: {description: "Gallery: φωτογραφία 5", required: false, type: string}
+      gallery6: {description: "Gallery: φωτογραφία 6", required: false, type: string}
       instagram: {description: "URL Instagram", required: false, type: string}
       facebook: {description: "URL Facebook", required: false, type: string}
       tiktok: {description: "URL TikTok", required: false, type: string}
@@ -70,6 +74,10 @@ jobs:
           PHOTO: ${{ inputs.photo }}
           GALLERY1: ${{ inputs.gallery1 }}
           GALLERY2: ${{ inputs.gallery2 }}
+          GALLERY3: ${{ inputs.gallery3 }}
+          GALLERY4: ${{ inputs.gallery4 }}
+          GALLERY5: ${{ inputs.gallery5 }}
+          GALLERY6: ${{ inputs.gallery6 }}
           INSTAGRAM: ${{ inputs.instagram }}
           FACEBOOK: ${{ inputs.facebook }}
           TIKTOK: ${{ inputs.tiktok }}
@@ -176,23 +184,55 @@ jobs:
                       break
               lines[insert_at:insert_at] = missing_lines
 
-          # Gallery: σε edit, κενά πεδία = διατήρηση της υπάρχουσας gallery.
-          # Αν συμπληρωθεί gallery1/gallery2, αντικαθίσταται με τις φωτογραφίες που δόθηκαν.
-          g1, g2 = val("GALLERY1"), val("GALLERY2")
-          gallery_requested = mode == "create" or bool(g1 or g2 or g1 == "__CLEAR__" or g2 == "__CLEAR__")
+          # Gallery: έως 6 φωτογραφίες.
+          # Στην επεξεργασία, αν όλα τα πεδία είναι κενά,
+          # διατηρείται η υπάρχουσα συλλογή.
+          gallery_values = [val(f"GALLERY{i}") for i in range(1, 7)]
+
+          gallery_requested = (
+              mode == "create"
+              or any(value for value in gallery_values)
+          )
+
           if gallery_requested:
-              start = next((i for i, line in enumerate(lines) if re.match(r"^gallery:\s*$", line)), None)
+              start = next(
+                  (
+                      i for i, line in enumerate(lines)
+                      if re.match(r"^gallery:\s*$", line)
+                  ),
+                  None
+              )
+
               if start is not None:
                   end = start + 1
-                  while end < len(lines) and (lines[end].startswith(" ") or lines[end].startswith("\t") or not lines[end].strip()):
+                  while end < len(lines) and (
+                      lines[end].startswith(" ")
+                      or lines[end].startswith("\t")
+                      or not lines[end].strip()
+                  ):
                       end += 1
                   del lines[start:end]
-              images = [x for x in (g1, g2) if x and x != "__CLEAR__"]
+
+              images = [
+                  value for value in gallery_values
+                  if value and value != "__CLEAR__"
+              ]
+
               if images:
                   block = ["gallery:"]
                   for i, src in enumerate(images, 1):
-                      block.extend([f"  - src: {quote(src)}", f"    alt: {quote(slug + ' - φωτογραφία ' + str(i))}"])
-                  insert_at = next((i for i, line in enumerate(lines) if line.startswith("permalink:")), len(lines))
+                      block.extend([
+                          f"  - src: {quote(src)}",
+                          f"    alt: {quote(slug + ' - φωτογραφία ' + str(i))}"
+                      ])
+
+                  insert_at = next(
+                      (
+                          i for i, line in enumerate(lines)
+                          if line.startswith("permalink:")
+                      ),
+                      len(lines)
+                  )
                   lines[insert_at:insert_at] = block
 
           # Διατήρησε permalink του πελάτη και το υπόλοιπο περιεχόμενο μετά το front matter.
