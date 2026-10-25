@@ -21,9 +21,9 @@ facebook: "https://www.facebook.com/"
 tiktok: "https://www.tiktok.com/"
 linkedin: "https://www.linkedin.com/"
 gallery:
-  - src: "assets/images/μαγαζί.jpg"
-    alt: "foskaifis - φωτογραφία 1"
   - src: "assets/images/fos&fis1.jpg"
+    alt: "foskaifis - φωτογραφία 1"
+  - src: "assets/images/μαγαζί.jpg"
     alt: "foskaifis - φωτογραφία 2"
   - src: "assets/images/fos&fis1.jpg"
     alt: "foskaifis - φωτογραφία 3"
@@ -31,5 +31,7 @@ gallery:
     alt: "foskaifis - φωτογραφία 4"
   - src: "assets/images/fos&fis1.jpg"
     alt: "foskaifis - φωτογραφία 5"
+  - src: "assets/images/fos&fis1.jpg"
+    alt: "foskaifis - φωτογραφία 6"
 permalink: /foskaifis/
 ---
