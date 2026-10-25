@@ -74,3 +74,40 @@
     line-height: 1.5;
   }
 }
+
+/* Desktop gallery: 2 larger photos per row */
+@media (min-width: 761px) {
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .gallery figure {
+    min-width: 0;
+    margin: 0;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #deded5;
+    box-shadow: 0 4px 18px rgba(32, 35, 31, 0.06);
+  }
+
+  .gallery img,
+  .gallery figure:first-child img {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    background: #f6f4ef;
+  }
+
+  .gallery figcaption {
+    padding: 10px 2px 2px;
+    color: #6b706a;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}
+
