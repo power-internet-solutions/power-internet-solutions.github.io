@@ -31,12 +31,7 @@ on:
       owner_bio: {description: "Κείμενο για τον ιδιοκτήτη", required: false, type: string}
       background: {description: "Διαδρομή εικόνας φόντου, π.χ. /assets/images/shop.jpg", required: false, type: string}
       photo: {description: "Διαδρομή φωτογραφίας ιδιοκτήτη", required: false, type: string}
-      gallery1: {description: "Gallery: φωτογραφία 1", required: false, type: string}
-      gallery2: {description: "Gallery: φωτογραφία 2", required: false, type: string}
-      gallery3: {description: "Gallery: φωτογραφία 3", required: false, type: string}
-      gallery4: {description: "Gallery: φωτογραφία 4", required: false, type: string}
-      gallery5: {description: "Gallery: φωτογραφία 5", required: false, type: string}
-      gallery6: {description: "Gallery: φωτογραφία 6", required: false, type: string}
+      gallery: {description: "Έως 6 διαδρομές φωτογραφιών, χωρισμένες με ; (π.χ. /assets/images/1.jpg;/assets/images/2.jpg)", required: false, type: string}
       instagram: {description: "URL Instagram", required: false, type: string}
       facebook: {description: "URL Facebook", required: false, type: string}
       tiktok: {description: "URL TikTok", required: false, type: string}
@@ -72,12 +67,7 @@ jobs:
           OWNER_BIO: ${{ inputs.owner_bio }}
           BACKGROUND: ${{ inputs.background }}
           PHOTO: ${{ inputs.photo }}
-          GALLERY1: ${{ inputs.gallery1 }}
-          GALLERY2: ${{ inputs.gallery2 }}
-          GALLERY3: ${{ inputs.gallery3 }}
-          GALLERY4: ${{ inputs.gallery4 }}
-          GALLERY5: ${{ inputs.gallery5 }}
-          GALLERY6: ${{ inputs.gallery6 }}
+          GALLERY: ${{ inputs.gallery }}
           INSTAGRAM: ${{ inputs.instagram }}
           FACEBOOK: ${{ inputs.facebook }}
           TIKTOK: ${{ inputs.tiktok }}
@@ -102,6 +92,7 @@ jobs:
 
           def val(key):
               return os.environ.get(key, "").strip()
+
           def quote(value):
               return json.dumps(value, ensure_ascii=False)
 
@@ -121,9 +112,13 @@ jobs:
           ]
 
           if mode == "create":
-              required = {"COMPANY": "Όνομα καταστήματος", "OWNER": "Ονοματεπώνυμο ιδιοκτήτη",
-                          "FIRSTNAME": "Όνομα ιδιοκτήτη", "LASTNAME": "Επώνυμο ιδιοκτήτη",
-                          "DESCRIPTION": "Περιγραφή επιχείρησης"}
+              required = {
+                  "COMPANY": "Όνομα καταστήματος",
+                  "OWNER": "Ονοματεπώνυμο ιδιοκτήτη",
+                  "FIRSTNAME": "Όνομα ιδιοκτήτη",
+                  "LASTNAME": "Επώνυμο ιδιοκτήτη",
+                  "DESCRIPTION": "Περιγραφή επιχείρησης",
+              }
               missing = [label for key, label in required.items() if not val(key)]
               if missing:
                   raise SystemExit("Για νέο πελάτη συμπλήρωσε τα υποχρεωτικά πεδία: " + ", ".join(missing))
@@ -147,28 +142,37 @@ jobs:
                   clears.add(key)
               elif value:
                   updates[key] = value
-              elif mode == "create":
-                  continue
 
           existing_keys = set()
           new_lines = []
-          for line in lines:
+          i = 0
+          while i < len(lines):
+              line = lines[i]
               match = re.match(r"^([A-Za-z0-9_-]+):(?:\s.*)?$", line)
               if match:
                   key = match.group(1)
                   if key == "gallery":
-                      # Η gallery επεξεργάζεται ως ξεχωριστό block παρακάτω.
-                      new_lines.append(line)
+                      # Παράλειψε ολόκληρο το παλιό block gallery.
+                      i += 1
+                      while i < len(lines) and (
+                          lines[i].startswith(" ")
+                          or lines[i].startswith("\\t")
+                          or not lines[i].strip()
+                      ):
+                          i += 1
                       continue
                   if key in clears:
                       existing_keys.add(key)
+                      i += 1
                       continue
                   if key in updates:
                       new_lines.append(f"{key}: {quote(updates[key])}")
                       existing_keys.add(key)
+                      i += 1
                       continue
                   existing_keys.add(key)
               new_lines.append(line)
+              i += 1
           lines = new_lines
 
           # Πρόσθεσε νέα πεδία πριν από gallery/permalink, για να μείνει καθαρό το front matter.
@@ -184,22 +188,15 @@ jobs:
                       break
               lines[insert_at:insert_at] = missing_lines
 
-          # Gallery: έως 6 φωτογραφίες.
-          # Στην επεξεργασία, αν όλα τα πεδία είναι κενά,
-          # διατηρείται η υπάρχουσα συλλογή.
-          gallery_values = [val(f"GALLERY{i}") for i in range(1, 7)]
-
-          gallery_requested = (
-              mode == "create"
-              or any(value for value in gallery_values)
-          )
+          # Gallery: έως 6 φωτογραφίες σε ένα πεδίο, χωρισμένες με ελληνικό/αγγλικό ;.
+          # Στην επεξεργασία, κενό πεδίο = διατήρηση της υπάρχουσας συλλογής.
+          gallery_raw = val("GALLERY")
+          gallery_requested = mode == "create" or bool(gallery_raw)
 
           if gallery_requested:
               start = next(
-                  (
-                      i for i, line in enumerate(lines)
-                      if re.match(r"^gallery:\s*$", line)
-                  ),
+                  (i for i, line in enumerate(lines)
+                   if re.match(r"^gallery:\s*$", line)),
                   None
               )
 
@@ -213,10 +210,16 @@ jobs:
                       end += 1
                   del lines[start:end]
 
-              images = [
-                  value for value in gallery_values
-                  if value and value != "__CLEAR__"
-              ]
+              images = []
+              if gallery_raw and gallery_raw != "__CLEAR__":
+                  images = [
+                      item.strip()
+                      for item in gallery_raw.split(";")
+                      if item.strip() and item.strip() != "__CLEAR__"
+                  ]
+
+              if len(images) > 6:
+                  raise SystemExit("Μπορείς να προσθέσεις έως 6 φωτογραφίες στη συλλογή.")
 
               if images:
                   block = ["gallery:"]
@@ -227,10 +230,8 @@ jobs:
                       ])
 
                   insert_at = next(
-                      (
-                          i for i, line in enumerate(lines)
-                          if line.startswith("permalink:")
-                      ),
+                      (i for i, line in enumerate(lines)
+                       if line.startswith("permalink:")),
                       len(lines)
                   )
                   lines[insert_at:insert_at] = block
