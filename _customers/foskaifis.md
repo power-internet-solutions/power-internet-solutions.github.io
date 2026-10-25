@@ -21,9 +21,15 @@ facebook: "https://www.facebook.com/foskaitexni/?locale=el_GR"
 tiktok: "https://www.facebook.com/foskaitexni/?locale=el_GR"
 linkedin: "https://www.facebook.com/foskaitexni/?locale=el_GR"
 gallery:
-  - src: "assets/images/foskaifis2.jpg"
+  - src: "assets/images/fos&fis1.jpg"
     alt: "foskaifis - φωτογραφία 1"
-  - src: "assets/images/fos&fis3.jpg"
+  - src: "assets/images/fos&fis1.jpg"
     alt: "foskaifis - φωτογραφία 2"
+  - src: "assets/images/fos&fis1.jpg"
+    alt: "foskaifis - φωτογραφία 3"
+  - src: "assets/images/fos&fis1.jpg"
+    alt: "foskaifis - φωτογραφία 4"
+  - src: "assets/images/fos&fis1.jpg"
+    alt: "foskaifis - φωτογραφία 5"
 permalink: /foskaifis/
 ---
