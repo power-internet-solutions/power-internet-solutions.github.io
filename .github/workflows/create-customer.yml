@@ -1,3 +1,4 @@
+
 name: Διαχείριση ιστοσελίδων πελατών
 
 on:
@@ -79,16 +80,29 @@ jobs:
 
           mode = os.environ.get("MODE", "create").strip()
           slug = os.environ.get("SLUG", "").strip().lower()
+
           if mode not in ("create", "edit"):
               raise SystemExit("Μη έγκυρη επιλογή. Επίλεξε create ή edit.")
+
           if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
-              raise SystemExit("Το URL πρέπει να περιέχει μόνο λατινικά μικρά γράμματα, αριθμούς και παύλες, π.χ. bakery-karditsa.")
+              raise SystemExit(
+                  "Το URL πρέπει να περιέχει μόνο λατινικά μικρά γράμματα, "
+                  "αριθμούς και παύλες, π.χ. bakery-karditsa."
+              )
 
           target = Path("_customers") / (slug + ".md")
+
           if mode == "create" and target.exists():
-              raise SystemExit("Υπάρχει ήδη πελάτης με αυτό το URL. Επίλεξε 'edit' για αλλαγές ή άλλο slug για νέο πελάτη.")
+              raise SystemExit(
+                  "Υπάρχει ήδη πελάτης με αυτό το URL. Επίλεξε 'edit' "
+                  "για αλλαγές ή άλλο slug για νέο πελάτη."
+              )
+
           if mode == "edit" and not target.exists():
-              raise SystemExit(f"Δεν βρέθηκε το αρχείο {target}. Έλεγξε το slug και ότι ο πελάτης υπάρχει ήδη.")
+              raise SystemExit(
+                  f"Δεν βρέθηκε το αρχείο {target}. "
+                  "Έλεγξε το slug και ότι ο πελάτης υπάρχει ήδη."
+              )
 
           def val(key):
               return os.environ.get(key, "").strip()
@@ -96,19 +110,28 @@ jobs:
           def quote(value):
               return json.dumps(value, ensure_ascii=False)
 
-          # Οι κενές τιμές στην επεξεργασία διατηρούν τα ήδη αποθηκευμένα δεδομένα.
-          # Για να διαγραφεί μια τιμή, γράψε ακριβώς __CLEAR__ στο αντίστοιχο πεδίο.
           fields = [
-              ("firstname", "FIRSTNAME"), ("lastname", "LASTNAME"),
-              ("name", "OWNER"), ("owner", "OWNER"),
-              ("owner_title", "OWNER_TITLE"), ("company", "COMPANY"),
-              ("tagline", "TAGLINE"), ("description", "DESCRIPTION"),
-              ("owner_bio", "OWNER_BIO"), ("landline", "LANDLINE"), ("phone", "PHONE"),
-              ("email", "EMAIL"), ("website", "WEBSITE"),
-              ("address", "ADDRESS"), ("hours", "HOURS"),
-              ("photo", "PHOTO"), ("background", "BACKGROUND"),
-              ("instagram", "INSTAGRAM"), ("facebook", "FACEBOOK"),
-              ("tiktok", "TIKTOK"), ("linkedin", "LINKEDIN"),
+              ("firstname", "FIRSTNAME"),
+              ("lastname", "LASTNAME"),
+              ("name", "OWNER"),
+              ("owner", "OWNER"),
+              ("owner_title", "OWNER_TITLE"),
+              ("company", "COMPANY"),
+              ("tagline", "TAGLINE"),
+              ("description", "DESCRIPTION"),
+              ("owner_bio", "OWNER_BIO"),
+              ("landline", "LANDLINE"),
+              ("phone", "PHONE"),
+              ("email", "EMAIL"),
+              ("website", "WEBSITE"),
+              ("address", "ADDRESS"),
+              ("hours", "HOURS"),
+              ("photo", "PHOTO"),
+              ("background", "BACKGROUND"),
+              ("instagram", "INSTAGRAM"),
+              ("facebook", "FACEBOOK"),
+              ("tiktok", "TIKTOK"),
+              ("linkedin", "LINKEDIN"),
           ]
 
           if mode == "create":
@@ -119,110 +142,170 @@ jobs:
                   "LASTNAME": "Επώνυμο ιδιοκτήτη",
                   "DESCRIPTION": "Περιγραφή επιχείρησης",
               }
-              missing = [label for key, label in required.items() if not val(key)]
+
+              missing = [
+                  label
+                  for key, label in required.items()
+                  if not val(key)
+              ]
+
               if missing:
-                  raise SystemExit("Για νέο πελάτη συμπλήρωσε τα υποχρεωτικά πεδία: " + ", ".join(missing))
+                  raise SystemExit(
+                      "Για νέο πελάτη συμπλήρωσε τα υποχρεωτικά πεδία: "
+                      + ", ".join(missing)
+                  )
+
               lines = ["layout: customer"]
+
           else:
-              original = target.read_text(encoding="utf-8").splitlines()
+              original = target.read_text(
+                  encoding="utf-8"
+              ).splitlines()
+
               if not original or original[0].strip() != "---":
-                  raise SystemExit("Το αρχείο πελάτη δεν έχει αναγνωρίσιμη ενότητα front matter.")
+                  raise SystemExit(
+                      "Το αρχείο πελάτη δεν έχει αναγνωρίσιμη ενότητα front matter."
+                  )
+
               try:
-                  end = next(i for i in range(1, len(original)) if original[i].strip() == "---")
+                  end = next(
+                      i for i in range(1, len(original))
+                      if original[i].strip() == "---"
+                  )
               except StopIteration:
-                  raise SystemExit("Δεν βρέθηκε η γραμμή --- που κλείνει τα πεδία του πελάτη.")
+                  raise SystemExit(
+                      "Δεν βρέθηκε η γραμμή --- που κλείνει τα πεδία του πελάτη."
+                  )
+
               lines = original[1:end]
 
-          # Ενημέρωση απλών πεδίων YAML, χωρίς να πειράζονται τα υπόλοιπα στοιχεία.
+          # Κενές τιμές στην επεξεργασία διατηρούν τα υπάρχοντα δεδομένα.
+          # Για διαγραφή απλού πεδίου, γράψε __CLEAR__.
+
           updates = {}
           clears = set()
+
           for key, envkey in fields:
               value = val(envkey)
+
               if value == "__CLEAR__":
                   clears.add(key)
               elif value:
                   updates[key] = value
 
+          # Η συλλογή αλλάζει μόνο όταν δίνεται νέα τιμή.
+          # Στη δημιουργία νέου πελάτη το πεδίο ελέγχεται πάντα.
+          gallery_raw = val("GALLERY")
+          gallery_requested = mode == "create" or bool(gallery_raw)
+
           existing_keys = set()
           new_lines = []
           i = 0
+
           while i < len(lines):
               line = lines[i]
-              match = re.match(r"^([A-Za-z0-9_-]+):(?:\s.*)?$", line)
+              match = re.match(
+                  r"^([A-Za-z0-9_-]+):(?:\s.*)?$",
+                  line
+              )
+
               if match:
                   key = match.group(1)
-                  if key == "gallery":
-                      # Παράλειψε ολόκληρο το παλιό block gallery.
+
+                  # Αν ζητήθηκε αλλαγή της συλλογής,
+                  # αφαιρούμε το παλιό block πριν γράψουμε το νέο.
+                  if key == "gallery" and gallery_requested:
                       i += 1
+
                       while i < len(lines) and (
                           lines[i].startswith(" ")
-                          or lines[i].startswith("\\t")
+                          or lines[i].startswith("\t")
                           or not lines[i].strip()
                       ):
                           i += 1
+
                       continue
+
                   if key in clears:
                       existing_keys.add(key)
                       i += 1
                       continue
+
                   if key in updates:
-                      new_lines.append(f"{key}: {quote(updates[key])}")
+                      new_lines.append(
+                          f"{key}: {quote(updates[key])}"
+                      )
                       existing_keys.add(key)
                       i += 1
                       continue
+
                   existing_keys.add(key)
+
               new_lines.append(line)
               i += 1
+
           lines = new_lines
 
-          # Πρόσθεσε νέα πεδία πριν από gallery/permalink, για να μείνει καθαρό το front matter.
+          # Προσθήκη νέων απλών πεδίων που δεν υπήρχαν ήδη.
           missing_lines = []
+
           for key, value in updates.items():
               if key not in existing_keys:
-                  missing_lines.append(f"{key}: {quote(value)}")
+                  missing_lines.append(
+                      f"{key}: {quote(value)}"
+                  )
+
           if missing_lines:
               insert_at = len(lines)
+
               for i, line in enumerate(lines):
                   if re.match(r"^(gallery|permalink):", line):
                       insert_at = i
                       break
+
               lines[insert_at:insert_at] = missing_lines
 
-          # Gallery: έως 6 φωτογραφίες σε ένα πεδίο, χωρισμένες με ελληνικό/αγγλικό ;.
-          # Στην επεξεργασία, κενό πεδίο = διατήρηση της υπάρχουσας συλλογής.
-          gallery_raw = val("GALLERY")
-          gallery_requested = mode == "create" or bool(gallery_raw)
-
+          # Έως 6 φωτογραφίες, χωρισμένες με ελληνικό ή αγγλικό ;.
+          # Κενό πεδίο σε edit = διατήρηση της παλιάς συλλογής.
           if gallery_requested:
               start = next(
-                  (i for i, line in enumerate(lines)
-                   if re.match(r"^gallery:\s*$", line)),
+                  (
+                      i for i, line in enumerate(lines)
+                      if re.match(r"^gallery:\s*$", line)
+                  ),
                   None
               )
 
               if start is not None:
                   end = start + 1
+
                   while end < len(lines) and (
                       lines[end].startswith(" ")
                       or lines[end].startswith("\t")
                       or not lines[end].strip()
                   ):
                       end += 1
+
                   del lines[start:end]
 
               images = []
+
               if gallery_raw and gallery_raw != "__CLEAR__":
                   images = [
                       item.strip()
                       for item in gallery_raw.split(";")
-                      if item.strip() and item.strip() != "__CLEAR__"
+                      if item.strip()
+                      and item.strip() != "__CLEAR__"
                   ]
 
               if len(images) > 6:
-                  raise SystemExit("Μπορείς να προσθέσεις έως 6 φωτογραφίες στη συλλογή.")
+                  raise SystemExit(
+                      "Μπορείς να προσθέσεις έως 6 φωτογραφίες στη συλλογή."
+                  )
 
               if images:
                   block = ["gallery:"]
+
                   for i, src in enumerate(images, 1):
                       block.extend([
                           f"  - src: {quote(src)}",
@@ -230,27 +313,57 @@ jobs:
                       ])
 
                   insert_at = next(
-                      (i for i, line in enumerate(lines)
-                       if line.startswith("permalink:")),
+                      (
+                          i for i, line in enumerate(lines)
+                          if line.startswith("permalink:")
+                      ),
                       len(lines)
                   )
+
                   lines[insert_at:insert_at] = block
 
-          # Διατήρησε permalink του πελάτη και το υπόλοιπο περιεχόμενο μετά το front matter.
+          # Διατήρηση του permalink και του περιεχομένου της σελίδας.
           if mode == "create":
-              if not any(line.startswith("permalink:") for line in lines):
+              if not any(
+                  line.startswith("permalink:")
+                  for line in lines
+              ):
                   lines.append(f"permalink: /{slug}/")
+
               output = ["---"] + lines + ["---", ""]
-              target.parent.mkdir(parents=True, exist_ok=True)
-              target.write_text("\n".join(output), encoding="utf-8")
+
+              target.parent.mkdir(
+                  parents=True,
+                  exist_ok=True
+              )
+
+              target.write_text(
+                  "\n".join(output),
+                  encoding="utf-8"
+              )
+
           else:
-              original = target.read_text(encoding="utf-8").splitlines()
-              end = next(i for i in range(1, len(original)) if original[i].strip() == "---")
+              original = target.read_text(
+                  encoding="utf-8"
+              ).splitlines()
+
+              end = next(
+                  i for i in range(1, len(original))
+                  if original[i].strip() == "---"
+              )
+
               body = original[end + 1:]
               output = ["---"] + lines + ["---"] + body
-              target.write_text("\n".join(output).rstrip("\n") + "\n", encoding="utf-8")
 
-          print(("Δημιουργήθηκε" if mode == "create" else "Ενημερώθηκε") + f" το {target}")
+              target.write_text(
+                  "\n".join(output).rstrip("\n") + "\n",
+                  encoding="utf-8"
+              )
+
+          print(
+              ("Δημιουργήθηκε" if mode == "create" else "Ενημερώθηκε")
+              + f" το {target}"
+          )
           PY
 
       - name: Commit και δημοσίευση
@@ -260,14 +373,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add -- "_customers/${SLUG}.md"
+
           if git diff --cached --quiet; then
             echo "Δεν υπάρχουν αλλαγές για αποθήκευση."
             exit 0
           fi
+
           if [ "$MODE" = "create" ]; then
             git commit -m "Add customer page: $SLUG"
           else
             git commit -m "Update customer page: $SLUG"
           fi
+
           git push
