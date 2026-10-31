@@ -23,7 +23,7 @@ linkedin: "https://www.linkedin.com/"
 gallery:
   - src: "assets/images/foskaifis/χριστουγεννα2.jpg"
     alt: "foskaifis - φωτογραφία 1"
-  - src: "assets/images/foskaifis/χριστουγεννα1.jpg"
+  - src: "assets/images/foskaifis/χριστούγεννα1.jpg"
     alt: "foskaifis - φωτογραφία 2"
   - src: "assets/images/foskaifis/υπολογιστες.jpg"
     alt: "foskaifis - φωτογραφία 3"
