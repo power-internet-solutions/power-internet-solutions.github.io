@@ -21,7 +21,17 @@ facebook: "https://www.facebook.com/"
 tiktok: "https://www.tiktok.com/"
 linkedin: "https://www.linkedin.com/"
 gallery:
-  - src: "assets/images/foskaifis/χριστουγεννα2.jpg,assets/images/foskaifis/χριστουγεννα1.jpg,assets/images/foskaifis/υπολογιστες.jpg,assets/images/foskaifis/πολυμπριζα.jpg,assets/images/foskaifis/μπαταριες.jpg,assets/images/foskaifis/φωτιστικά.jpg"
+  - src: "assets/images/foskaifis/χριστουγεννα2.jpg"
     alt: "foskaifis - φωτογραφία 1"
+  - src: "assets/images/foskaifis/χριστουγεννα1.jpg"
+    alt: "foskaifis - φωτογραφία 2"
+  - src: "assets/images/foskaifis/υπολογιστες.jpg"
+    alt: "foskaifis - φωτογραφία 3"
+  - src: "assets/images/foskaifis/πολυμπριζα.jpg"
+    alt: "foskaifis - φωτογραφία 4"
+  - src: "assets/images/foskaifis/μπαταριες.jpg"
+    alt: "foskaifis - φωτογραφία 5"
+  - src: "assets/images/foskaifis/φωτιστικά.jpg"
+    alt: "foskaifis - φωτογραφία 6"
 permalink: /foskaifis/
 ---
