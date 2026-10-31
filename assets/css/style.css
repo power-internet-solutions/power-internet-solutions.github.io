@@ -228,6 +228,48 @@
   }
 }
 
+/* Desktop gallery: large images with small side margins */
+@media (min-width: 761px) {
+  .gallery {
+    width: calc(100% - 32px);
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+  }
+
+  .gallery figure {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .gallery img,
+  .gallery figure:first-child img {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+  }
+}
+
+/* Mobile: keep images edge-to-edge */
+@media (max-width: 760px) {
+  .gallery {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+}
+
+
 
 
 
